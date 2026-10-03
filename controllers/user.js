@@ -3,13 +3,12 @@ import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
 export const HandleUserLogin = async (req, res) => {
   try {
-    const { email, password, role, district } = req.body;
+    const { email, password, role } = req.body;
 
     const authResult = await userService.authenticateUser({
       email,
       password,
       role,
-      district,
     });
 
     if (!authResult) {
@@ -33,7 +32,7 @@ export const HandleUserLogin = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return sendSuccess(res, 200, `Login successful as ${role}`, {
+    return sendSuccess(res, 200, `Login successful as ${user.role}`, {
       user: {
         id: user._id,
         email: user.email,

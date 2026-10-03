@@ -21,8 +21,12 @@ export const generateRefreshToken = (user) => {
   );
 };
 
-export const authenticateUser = async ({ email, password, role, district }) => {
-  const user = await User.findOne({ email, role, district });
+export const authenticateUser = async ({ email, password, role }) => {
+  const query = { email };
+  if (role) {
+    query.role = role;
+  }
+  const user = await User.findOne(query);
   if (!user) {
     return null;
   }

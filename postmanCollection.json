@@ -161,7 +161,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"producer\",\n  \"district\": \"Pune\"\n}"
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"producer\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/user/login",

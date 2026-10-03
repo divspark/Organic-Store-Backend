@@ -195,7 +195,7 @@ Every endpoint adheres strictly to the unified response contract defined in [uti
 | Route | Method | Auth | Body / Params | Description |
 |---|---|---|---|---|
 | `/user/signup` | `POST` | None | `{ email, password, role, district, state }` | Registers user, hashes password, sets auth cookies |
-| `/user/login` | `POST` | None | `{ email, password, role, district }` | Authenticates user and issues access/refresh tokens |
+| `/user/login` | `POST` | None | `{ email, password, role? }` | Authenticates user (district retrieved from DB) & issues tokens |
 | `/user/token/refresh` | `POST` | Refresh Cookie | None | Verifies refresh token and issues fresh access token |
 | `/user/all` | `GET` | None | None | Returns list of all platform registered users |
 | `/user/:id` & `/user/user/:id` | `GET` | None | `:id` (URL parameter) | Retrieves user profile (excluding password) |
