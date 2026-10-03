@@ -1,0 +1,85 @@
+{
+  "id": "e8d7c6b5-a4f3-4e2d-9c1b-0a9b8c7d6e5f",
+  "name": "Organic Store - Localhost Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userEmail",
+      "value": "farmer.test@example.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userRole",
+      "value": "consumer",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userDistrict",
+      "value": "Pune",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userState",
+      "value": "Maharashtra",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "productName",
+      "value": "Fresh Organic Tomatoes",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "paymentId",
+      "value": "pi_mock_1234567890abcdef",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clientSecret",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

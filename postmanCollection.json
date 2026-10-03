@@ -1,0 +1,750 @@
+{
+  "info": {
+    "_postman_id": "a9e1d82f-5374-4bf8-b643-9821db60a821",
+    "name": "Organic Store / FoodMiles Backend API",
+    "description": "# Organic Store & FoodMiles Backend REST API Collection\n\nComprehensive, production-ready Postman collection for the Organic Store backend ecosystem with standard `{ success, message, data }` responses.\n\n### Features:\n- 🔐 **Automated Auth**: Login/Signup/Refresh auto-populates `accessToken`, `refreshToken`, and user IDs.\n- 📦 **Dynamic Variables**: Endpoints share IDs (`productId`, `orderId`, `userEmail`, etc.) dynamically across requests.\n- 🧪 **Built-in Test Scripts**: Every request validates HTTP status codes, response structure (`success`, `message`, `data`), and payload integrity.\n- ⚙️ **Environment Aware**: Configured to seamlessly switch between Localhost (`http://localhost:4000`), Staging, and Production.\n\n### Recommended Execution Flow:\n1. **User APIs** -> *User Signup* or *User Login* (auto-sets `accessToken` and `userId`).\n2. **Product APIs** -> *Create New Product* (auto-sets `productId`).\n3. **Order APIs** -> *Create New Order* (auto-sets `orderId`).\n4. **Payment APIs** -> *Create Payment Intent* -> *Update Order After Payment* / *Webhook*.\n5. **Speech / Recipe / Testimonials** for auxiliary workflows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userEmail",
+      "value": "farmer.test@example.com",
+      "type": "string"
+    },
+    {
+      "key": "userRole",
+      "value": "producer",
+      "type": "string"
+    },
+    {
+      "key": "userDistrict",
+      "value": "Pune",
+      "type": "string"
+    },
+    {
+      "key": "userState",
+      "value": "Maharashtra",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "productName",
+      "value": "Fresh Organic Tomatoes",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "pi_mock_1234567890abcdef",
+      "type": "string"
+    },
+    {
+      "key": "clientSecret",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response has success flag\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication & User APIs",
+      "item": [
+        {
+          "name": "User Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"farmer.{{$randomInt}}@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"producer\",\n  \"district\": \"Pune\",\n  \"state\": \"Maharashtra\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "signup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.user) {",
+                  "    pm.collectionVariables.set(\"userId\", res.data.user.id);",
+                  "    pm.collectionVariables.set(\"userEmail\", res.data.user.email);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"producer\",\n  \"district\": \"Pune\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.user) {",
+                  "    pm.collectionVariables.set(\"userId\", res.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Profile By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "{{userId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"district\": \"Pune\",\n  \"state\": \"Maharashtra\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "all"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/token/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "token", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Delete User By Email",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/email/{{userEmail}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "email", "{{userEmail}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Product Catalog & Management",
+      "item": [
+        {
+          "name": "Create New Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Fresh Organic Tomatoes",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "45",
+                  "type": "text"
+                },
+                {
+                  "key": "stock",
+                  "value": "100",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Vegetables",
+                  "type": "text"
+                },
+                {
+                  "key": "district",
+                  "value": "{{userDistrict}}",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/new",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "new"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "    pm.collectionVariables.set(\"productId\", res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Latest Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/latest",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "latest"]
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Products Catalog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/admin-products",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "admin-products"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "Search Product By Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/name/{{productName}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "name", "{{productName}}"]
+            }
+          }
+        },
+        {
+          "name": "Filter Products By District",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/district/{{userDistrict}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "district", "{{userDistrict}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Products By Producer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/producer/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "producer", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Product By ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 50,\n  \"stock\": 120\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Product By ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "{{productId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Order Management",
+      "item": [
+        {
+          "name": "Create New Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": \"{{userId}}\",\n  \"products\": [\n    {\n      \"product\": \"{{productId}}\",\n      \"quantity\": 2,\n      \"price\": 45\n    }\n  ],\n  \"shippingAddress\": {\n    \"street\": \"123 Farm Way\",\n    \"city\": \"Pune\",\n    \"state\": \"Maharashtra\",\n    \"postalCode\": \"411001\",\n    \"country\": \"India\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/new",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "new"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "    pm.collectionVariables.set(\"orderId\", res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Producer Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/order/producer/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "producer", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"processed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/update/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "update", "{{orderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Payments & Webhooks",
+      "item": [
+        {
+          "name": "Create Payment Intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 90,\n  \"currency\": \"inr\",\n  \"orderId\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/pay",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment", "pay"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.clientSecret) {",
+                  "    pm.collectionVariables.set(\"clientSecret\", res.data.clientSecret);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment Callback Settlement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"orderId\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment", "callback"]
+            }
+          }
+        },
+        {
+          "name": "Stripe Webhook (Idempotent Simulation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_postman_12345\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_stripe_98765\",\n      \"metadata\": {\n        \"orderId\": \"{{orderId}}\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment", "webhook"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Webhook processed\", function () {",
+                  "    const res = pm.response.json();",
+                  "    pm.expect(res.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Social & Testimonials",
+      "item": [
+        {
+          "name": "Get All Testimonials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/testimonials/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["testimonials", "all"]
+            }
+          }
+        },
+        {
+          "name": "Create Testimonial",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Aarav Sharma",
+                  "type": "text"
+                },
+                {
+                  "key": "message",
+                  "value": "Outstanding fresh produce delivered directly from local organic farms!",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/testimonials/new",
+              "host": ["{{baseUrl}}"],
+              "path": ["testimonials", "new"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Smart & AI Features",
+      "item": [
+        {
+          "name": "SmartBite AI Recipe Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/recipe/recipes?q=tomato&cuisine=indian",
+              "host": ["{{baseUrl}}"],
+              "path": ["recipe", "recipes"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "tomato"
+                },
+                {
+                  "key": "cuisine",
+                  "value": "indian"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Voice NLP Grocery Ordering",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/speech/new?input=2 kg aalu",
+              "host": ["{{baseUrl}}"],
+              "path": ["speech", "new"],
+              "query": [
+                {
+                  "key": "input",
+                  "value": "2 kg aalu"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
